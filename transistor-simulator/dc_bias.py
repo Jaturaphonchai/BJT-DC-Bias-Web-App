@@ -52,20 +52,6 @@ class BiasResult:
     warnings: tuple[str, ...]
 
 
-@dataclass(frozen=True)
-class ApproxResult:
-    """ผลจากวิธีประมาณ (ละ IB) — VB ≈ VTH, IE ≈ VE/RE, IC ≈ IE"""
-
-    vth: float
-    vb: float
-    ve: float
-    vc: float
-    vce: float
-    ib_ma: float
-    ic_ma: float
-    ie_ma: float
-
-
 def parse_inputs(form: Mapping[str, str]) -> BiasInputs:
     """แปลงข้อมูลจากฟอร์มเป็น BiasInputs หรือโยน ValidationError"""
 
@@ -168,39 +154,4 @@ def calculate_dc_bias(inputs: BiasInputs) -> BiasResult:
         vce=vce,
         region=region,
         warnings=tuple(warnings),
-    )
-
-
-def calculate_dc_bias_approx(inputs: BiasInputs) -> ApproxResult:
-    """วิธีประมาณแบบละ IB (ใช้เมื่อ RTH ≪ (β+1)·RE)
-
-    VB ≈ VTH, VE = VTH − VBE, IE = VE/RE, IC ≈ IE, IB = IC/β
-    เป็นการประมาณที่ใช้กันในตำราเบื้องต้น — คลาดเคลื่อนมากเมื่อ RTH ไม่ได้เล็กกว่า (β+1)·RE
-    """
-
-    r1 = inputs.r1 * 1000.0
-    r2 = inputs.r2 * 1000.0
-    rc = inputs.rc * 1000.0
-    re = inputs.re * 1000.0
-
-    vth = inputs.vcc * r2 / (r1 + r2)
-    vb = vth
-    ve = max(vth - inputs.vbe, 0.0)
-
-    ie = ve / re
-    ic = ie
-    ib = ic / inputs.beta
-
-    vc = inputs.vcc - ic * rc
-    vce = vc - ve
-
-    return ApproxResult(
-        vth=vth,
-        vb=vb,
-        ve=ve,
-        vc=vc,
-        vce=vce,
-        ib_ma=ib * 1000.0,
-        ic_ma=ic * 1000.0,
-        ie_ma=ie * 1000.0,
     )

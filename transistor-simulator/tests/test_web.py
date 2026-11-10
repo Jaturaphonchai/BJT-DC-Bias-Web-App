@@ -45,9 +45,10 @@ class TestWeb(unittest.TestCase):
         response = self.client.post("/calculate", data=VALID_FORM)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"8.779", response.data)  # วิธีประมาณ
-        self.assertIn(b"8.052", response.data)  # สมการเต็ม
+        self.assertIn(b"1.942", response.data)  # VB จากสมการเต็ม
+        self.assertIn(b"8.052", response.data)  # VCE
         self.assertIn("Active".encode(), response.data)
+        self.assertNotIn(b"8.779", response.data)  # ไม่แสดงผลวิธีประมาณแล้ว
 
     def test_post_invalid_input_shows_error_without_crashing(self):
         response = self.client.post("/calculate", data={**VALID_FORM, "r1": "0"})

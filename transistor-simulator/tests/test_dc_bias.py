@@ -2,13 +2,7 @@
 
 import unittest
 
-from dc_bias import (
-    BiasInputs,
-    ValidationError,
-    calculate_dc_bias,
-    calculate_dc_bias_approx,
-    parse_inputs,
-)
+from dc_bias import BiasInputs, ValidationError, calculate_dc_bias, parse_inputs
 
 FORM = {
     "vcc": "12",
@@ -98,33 +92,6 @@ class TestCalculate(unittest.TestCase):
 
         self.assertAlmostEqual(result.rth_kohm, 18.0328, places=3)
         self.assertLess(result.ic_ma, 10.0)
-
-
-class TestApproximateMethod(unittest.TestCase):
-    def test_approximate_operating_point(self):
-        result = calculate_dc_bias_approx(ref_inputs())
-
-        self.assertAlmostEqual(result.vth, 2.1639, places=3)
-        self.assertAlmostEqual(result.vb, 2.1639, places=3)
-        self.assertAlmostEqual(result.ve, 1.4639, places=3)
-        self.assertAlmostEqual(result.vc, 8.7793, places=3)
-        self.assertAlmostEqual(result.vce, 7.3154, places=3)
-        self.assertAlmostEqual(result.ib_ma, 0.0146, places=4)
-        self.assertAlmostEqual(result.ic_ma, 1.4639, places=3)
-        self.assertAlmostEqual(result.ie_ma, 1.4639, places=3)
-
-    def test_approximation_differs_from_full_equation(self):
-        approx = calculate_dc_bias_approx(ref_inputs())
-        full = calculate_dc_bias(ref_inputs())
-
-        difference = abs(approx.ve - full.ve) / full.ve
-        self.assertGreater(difference, 0.1)
-
-    def test_approximate_cutoff_when_vth_below_vbe(self):
-        result = calculate_dc_bias_approx(ref_inputs(r2=1.0))
-
-        self.assertAlmostEqual(result.ve, 0.0)
-        self.assertAlmostEqual(result.ic_ma, 0.0)
 
 
 if __name__ == "__main__":

@@ -22,35 +22,22 @@ VC  = 12 − 1.2299 mA × 2.2 kΩ = 12 − 2.7057 = 9.2943 V
 VCE = 9.2943 − 1.2422      = 8.0521 V
 ```
 
-### คำนวณด้วยวิธีประมาณ (ละ IB)
-
-```
-VB  ≈ VTH = 2.1639 V
-VE  = VTH − VBE = 2.1639 − 0.70 = 1.4639 V
-IE  = VE / RE = 1.4639 mA
-IC  ≈ IE = 1.4639 mA
-IB  = IC / β = 14.64 µA
-VC  = 12 − 1.4639 × 2.2 = 8.7793 V
-VCE = 8.7793 − 1.4639 = 7.3154 V
-```
-
 ### เทียบกับผลจากเว็บ
 
-| ปริมาณ | วิธีประมาณ (ละ IB) | สมการเต็ม (คิด IB) |
+| ปริมาณ | คำนวณมือ | เว็บแสดง |
 |---|---|---|
-| VTH | 2.164 V | 2.164 V |
-| RTH | — | 18.03 kΩ |
-| VB | 2.164 V | 1.942 V |
-| VE | 1.464 V | 1.242 V |
-| VC | 8.779 V | 9.294 V |
-| VCE | 7.315 V | 8.052 V |
-| IB | 14.6 µA | 12.3 µA |
-| IC | 1.464 mA | 1.230 mA |
-| IE | 1.464 mA | 1.242 mA |
-| Region | — | Active (Forward-Active) |
+| VTH | 2.1639 V | 2.164 V |
+| RTH | 18.0328 kΩ | 18.03 kΩ |
+| VB | 1.9422 V | 1.942 V |
+| VE | 1.2422 V | 1.242 V |
+| VC | 9.2943 V | 9.294 V |
+| VCE | 8.0521 V | 8.052 V |
+| IB | 12.299 µA | 12.3 µA |
+| IC | 1.2299 mA | 1.230 mA |
+| IE | 1.2422 mA | 1.242 mA |
+| Region | Active | Active (Forward-Active) |
 
-ทั้งสองคอลัมน์ตรงกับที่คำนวณมือในข้อ 1 และผลต่าง VE ≈ 18%
-เพราะ `RTH = 18.03 kΩ` ไม่ได้เล็กกว่า `(β+1)·RE = 101 kΩ` มากนัก
+ทุกค่าตรงกับที่คำนวณมือในข้อ 1
 
 ## 2. กรณีขอบเขตแบบจำลอง
 
@@ -69,10 +56,10 @@ VCE = 8.7793 − 1.4639 = 7.3154 V
 python -m unittest discover -s tests -v
 ```
 
-ผลล่าสุด: `Ran 17 tests ... OK`
+ผลล่าสุด: `Ran 16 tests ... OK`
 
-- `tests/test_dc_bias.py` — 13 tests (validation 6, สมการเต็ม 4, วิธีประมาณ 3)
-- `tests/test_web.py` — 4 tests (GET form, POST ค่าจริง, POST ค่าผิด, POST cutoff)
+- `tests/test_dc_bias.py` — 10 tests (validation 6, สมการ/region 4)
+- `tests/test_web.py` — 6 tests (GET form, GET schematic, GET static SVG, POST ค่าจริง, POST ค่าผิด, POST cutoff)
 
 ## 4. วิธีทำซ้ำด้วยตนเอง
 

@@ -240,40 +240,6 @@ table td {
 table tr.group th,
 table tr.group td { border-top: 2px solid var(--line); }
 
-table thead th {
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: center;
-  border-bottom: 2px solid var(--line);
-}
-
-table thead th:first-child { text-align: left; }
-
-.col-note {
-  display: block;
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--muted);
-}
-
-.main-col {
-  background: #eaf6f1;
-  font-weight: 700;
-}
-
-table thead th.main-col { color: #0f5f52; }
-
-.note-difference {
-  margin-top: 14px;
-  padding: 10px 14px;
-  font-size: 13px;
-  line-height: 1.65;
-  color: #45586a;
-  background: #f2f7fb;
-  border-left: 4px solid var(--blue);
-  border-radius: 0 6px 6px 0;
-}
-
 .warnings {
   margin-top: 16px;
   padding: 12px 15px;

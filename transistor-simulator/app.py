@@ -2,12 +2,7 @@
 
 from flask import Flask, render_template, request
 
-from dc_bias import (
-    ValidationError,
-    calculate_dc_bias,
-    calculate_dc_bias_approx,
-    parse_inputs,
-)
+from dc_bias import ValidationError, calculate_dc_bias, parse_inputs
 
 app = Flask(__name__)
 
@@ -35,7 +30,6 @@ def index():
         values=DEFAULT_VALUES,
         errors={},
         result=None,
-        approx=None,
     )
 
 
@@ -58,8 +52,6 @@ def calculate():
         values=values,
         errors={},
         result=calculate_dc_bias(inputs),
-        approx=calculate_dc_bias_approx(inputs),
-        beta_re_kohm=(inputs.beta + 1.0) * inputs.re,
         region_labels=REGION_LABELS,
     )
 
