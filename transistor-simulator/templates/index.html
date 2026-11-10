@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BJT DC Bias Calculator — ENG29 2121</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">ENG29 2121 · Lab 02</p>
+    <h1>BJT DC Bias Calculator</h1>
+    <p class="subtitle">Common-Emitter · Voltage-Divider Bias · Forward-Active Approximation</p>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <h2>ค่าอุปกรณ์</h2>
+      <form method="post" action="{{ url_for('calculate') }}" novalidate>
+        {% set fields = [
+          ("vcc",  "VCC", "V",  "แรงดันไฟเลี้ยง"),
+          ("r1",   "R1",  "kΩ", "ตัวต้านทาน VCC–Base"),
+          ("r2",   "R2",  "kΩ", "ตัวต้านทาน Base–Ground"),
+          ("rc",   "RC",  "kΩ", "ตัวต้านทาน VCC–Collector"),
+          ("re",   "RE",  "kΩ", "ตัวต้านทาน Emitter–Ground"),
+          ("beta", "β",   "—",  "อัตราขยายกระแส"),
+          ("vbe",  "VBE", "V",  "แรงดัน Base–Emitter"),
+        ] %}
+
+        {% for name, label, unit, hint in fields %}
+        <div class="field">
+          <label for="{{ name }}">
+            <span class="field-label">{{ label }}</span>
+            <span class="field-unit">{{ unit }}</span>
+          </label>
+          <input
+            id="{{ name }}"
+            name="{{ name }}"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            value="{{ values[name] }}"
+            aria-describedby="{{ name }}-hint{{ ' ' ~ name ~ '-error' if errors.get(name) }}"
+            class="{{ 'invalid' if errors.get(name) }}">
+          <p class="hint" id="{{ name }}-hint">{{ hint }}</p>
+          {% if errors.get(name) %}
+          <p class="field-error" id="{{ name }}-error">{{ errors[name] }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit">Calculate DC Bias</button>
+      </form>
+
+      <p class="hint footnote">
+        ค่าความต้านทานกรอกเป็น kΩ · ระบบแปลงเป็น Ω ก่อนคำนวณ
+      </p>
+    </section>
+
+    <section class="card results">
+      <h2>ผลลัพธ์ DC Operating Point</h2>
+
+      {% if result %}
+        <div class="region region-{{ result.region }}">
+          <span class="region-label">Operating Region</span>
+          <strong class="region-value">{{ region_labels[result.region] }}</strong>
+        </div>
+
+        <table class="compare">
+          <caption class="sr-only">เปรียบเทียบผลวิธีประมาณและสมการเต็ม</caption>
+          <thead>
+            <tr>
+              <th scope="col">ปริมาณ</th>
+              <th scope="col" class="main-col">วิธีประมาณ<br><span class="col-note">ละ IB</span></th>
+              <th scope="col">สมการเต็ม<br><span class="col-note">คิด IB</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">V<sub>TH</sub></th><td class="main-col">{{ "%.3f"|format(approx.vth) }} V</td><td>{{ "%.3f"|format(result.vth) }} V</td></tr>
+            <tr><th scope="row">R<sub>TH</sub></th><td class="main-col">—</td><td>{{ "%.2f"|format(result.rth_kohm) }} kΩ</td></tr>
+            <tr class="group"><th scope="row">V<sub>B</sub></th><td class="main-col">{{ "%.3f"|format(approx.vb) }} V</td><td>{{ "%.3f"|format(result.vb) }} V</td></tr>
+            <tr><th scope="row">V<sub>E</sub></th><td class="main-col">{{ "%.3f"|format(approx.ve) }} V</td><td>{{ "%.3f"|format(result.ve) }} V</td></tr>
+            <tr><th scope="row">V<sub>C</sub></th><td class="main-col">{{ "%.3f"|format(approx.vc) }} V</td><td>{{ "%.3f"|format(result.vc) }} V</td></tr>
+            <tr><th scope="row">V<sub>CE</sub></th><td class="main-col">{{ "%.3f"|format(approx.vce) }} V</td><td>{{ "%.3f"|format(result.vce) }} V</td></tr>
+            <tr class="group"><th scope="row">I<sub>B</sub></th><td class="main-col">{{ "%.1f"|format(approx.ib_ma * 1000) }} µA</td><td>{{ "%.1f"|format(result.ib_ma * 1000) }} µA</td></tr>
+            <tr><th scope="row">I<sub>C</sub></th><td class="main-col">{{ "%.3f"|format(approx.ic_ma) }} mA</td><td>{{ "%.3f"|format(result.ic_ma) }} mA</td></tr>
+            <tr><th scope="row">I<sub>E</sub></th><td class="main-col">{{ "%.3f"|format(approx.ie_ma) }} mA</td><td>{{ "%.3f"|format(result.ie_ma) }} mA</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note-difference">
+          <strong>ทำไมสองวิธีไม่เท่ากัน:</strong> วิธีประมาณใช้ได้เมื่อ
+          <code>R<sub>TH</sub> ≪ (β+1)·R<sub>E</sub></code>
+          แต่ชุดค่านี้ให้ R<sub>TH</sub> ≈ {{ "%.1f"|format(result.rth_kohm) }} kΩ
+          เทียบกับ (β+1)·R<sub>E</sub> = {{ "%.0f"|format(beta_re_kohm) }} kΩ
+          {% if result.ve > 0 %}
+          จึงคลาดเคลื่อนที่ V<sub>E</sub> ประมาณ
+          {{ "%.0f"|format(((approx.ve - result.ve) / result.ve * 100) | abs) }}%
+          — ใช้ “สมการเต็ม” เมื่อต้องการความแม่นยำ
+          {% else %}
+          — ในย่าน Cutoff ทั้งสองวิธีให้ I<sub>E</sub> = 0 เท่ากัน
+          {% endif %}
+        </div>
+
+        {% if result.warnings %}
+        <div class="warnings">
+          <h3>ข้อจำกัดของแบบจำลอง</h3>
+          <ul>
+            {% for warning in result.warnings %}
+            <li>{{ warning }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <p class="hint footnote">
+          สมมติฐาน: β คงที่, V<sub>BE</sub> คงที่ และ Forward-Active Approximation
+          (ไม่ใช่ ngspice)
+        </p>
+      {% else %}
+        <div class="empty">
+          <p>กรอกค่าอุปกรณ์แล้วกด <strong>Calculate DC Bias</strong></p>
+          <p class="hint">ผลลัพธ์จะคำนวณจาก Python backend แล้วแสดงที่นี่</p>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer>
+    ENG29 2121 · Lab 02 · Flask + Python backend · ค่าตัวอย่างจากใบงานปฏิบัติการ
+  </footer>
+</body>
+</html>
