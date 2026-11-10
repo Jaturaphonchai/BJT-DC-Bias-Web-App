@@ -27,6 +27,20 @@ class TestWeb(unittest.TestCase):
         self.assertIn(b"VCC", response.data)
         self.assertIn("Calculate DC Bias".encode(), response.data)
 
+    def test_get_index_shows_schematic(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"schematic.svg", response.data)
+        self.assertIn("แผนผังวงจร".encode(), response.data)
+
+    def test_schematic_file_is_served(self):
+        response = self.client.get("/static/schematic.svg")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"<svg", response.data)
+        response.close()
+
     def test_post_valid_input_calculates_on_backend(self):
         response = self.client.post("/calculate", data=VALID_FORM)
 

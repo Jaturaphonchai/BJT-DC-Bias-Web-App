@@ -14,6 +14,19 @@
   </header>
 
   <main class="layout">
+    <section class="card schematic">
+      <h2>แผนผังวงจร</h2>
+      <figure class="schematic-figure">
+        <img src="{{ url_for('static', filename='schematic.svg') }}"
+             alt="วงจร BJT NPN แบบ Voltage-Divider Bias: R1 จาก VCC ไป Base, R2 จาก Base ลง Ground, RC จาก VCC ไป Collector, RE จาก Emitter ลง Ground และจุดวัด VB, VC, VE"
+             width="560" height="430">
+        <figcaption>
+          Q1 เป็น NPN ต่อแบบ Common-Emitter · จุดวัด V<sub>B</sub>, V<sub>C</sub>, V<sub>E</sub>
+          ใช้เทียบกับผลลัพธ์ที่คำนวณได้
+        </figcaption>
+      </figure>
+    </section>
+
     <section class="card">
       <h2>ค่าอุปกรณ์</h2>
       <form method="post" action="{{ url_for('calculate') }}" novalidate>
